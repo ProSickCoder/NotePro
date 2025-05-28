@@ -71,8 +71,7 @@ Take notes, track tasks, stay organized, and never miss a beat.
 
 
 ### 🔵 Blue Theme – Progress
-![Blue Theme - Calendar]([82c7b1ff-f155-465e-826d-8cf7018e780c.png](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174746.png))
-
+![Blue Theme - Calendar]([Blue Theme - Calander](https://github.com/ProSickCoder/NotePro/blob/f23f119348a75419d0e17333c729ae8835fd2c62/Screenshot%202025-05-28%20174812.png))
 ### 🟣 Purple Theme – Widgets
 ![Purple Theme - Widgets]([Purple Theme - Widgets](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174646.png))
 
