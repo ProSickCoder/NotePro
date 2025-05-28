@@ -67,7 +67,7 @@ Take notes, track tasks, stay organized, and never miss a beat.
 !([Dark Mode - Progress](https://github.com/ProSickCoder/NotePro/blob/f2f1b04eb4ce8531ebf121db2bc82a99c86581a0/Screenshot%202025-05-28%20174746.png))
 
 ### 🟢 Light Mode – Calander
-!([Light Mode - KeyPoints]](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174837.png))
+!([Light Mode - KeyPoints](https://github.com/ProSickCoder/NotePro/blob/f2f1b04eb4ce8531ebf121db2bc82a99c86581a0/Screenshot%202025-05-28%20174837.png))
 
 
 ### 🔵 Blue Theme – Progress
