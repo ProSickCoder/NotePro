@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotesApp Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <style>
+        /* Base styles and variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light Theme Defaults */
+            --primary-color: #4ade80; /* Green */
+            --secondary-color: #22c55e; /* Darker Green */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc; /* Light Gray */
+            --bg-card: #ffffff;
+            --text-primary: #1e293b; /* Dark Blue-Gray */
+            --text-secondary: #64748b; /* Medium Blue-Gray */
+            --border: #e2e8f0; /* Light Border */
+            --shadow: rgba(0, 0, 0, 0.1);
+            --accent: #3b82f6; /* Blue */
+            --warning: #f59e0b; /* Orange */
+            --danger: #ef4444; /* Red */
+            --success: #22c55e; /* Green */
+        }
+
+        /* Dark Theme */
+        .theme-dark {
+            --primary-color: #4ade80;
+            --secondary-color: #22c55e;
+            --bg-primary: #0f172a; /* Dark Blue */
+            --bg-secondary: #1e293b; /* Darker Blue */
+            --bg-card: #334155; /* Even Darker Blue */
+            --text-primary: #f1f5f9; /* Off-White */
+            --text-secondary: #94a3b8; /* Light Blue-Gray */
+            --border: #475569; /* Dark Border */
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Custom Theme: Blue */
+        .theme-blue {
+            --primary-color: #60a5fa; /* Light Blue */
+            --secondary-color: #3b82f6; /* Blue */
+            --bg-primary: #e0f2fe;
+            --bg-secondary: #bfdbfe;
+            --bg-card: #ffffff;
+            --text-primary: #1e3a8a;
+            --text-secondary: #60a5fa;
+            --border: #93c5fd;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        /* Custom Theme: Purple */
+        .theme-purple {
+            --primary-color: #a78bfa; /* Light Purple */
+            --secondary-color: #8b5cf6; /* Purple */
+            --bg-primary: #f3e8ff;
+            --bg-secondary: #d8b4fe;
+            --bg-card: #ffffff;
+            --text-primary: #5b21b6;
+            --text-secondary: #a78bfa;
+            --border: #c4b5fd;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-secondary);
+            min-height: 80vh; /* Adjusted for better fit on larger screens */
+            position: relative;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 20px 20px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 40px 12px 40px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 30%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .filter-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-icon:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto; /* Enable scrolling for content area */
+        }
+
+        .note-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        .note-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .note-content {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            word-wrap: break-word; /* Ensure long words break */
+        }
+        
+        /* Styling for formatted text */
+        .note-content strong, .note-content b { font-weight: bold; }
+        .note-content em, .note-content i { font-style: italic; }
+        .note-content u { text-decoration: underline; }
+        .note-content s { text-decoration: line-through; }
+        .note-content a { color: var(--accent); text-decoration: none; }
+        .note-content a:hover { text-decoration: underline; }
+        .note-content img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 8px; }
+        .note-content span[style*="color"] { /* Apply color to spans */ }
+
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .note-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-left: 5px; /* Spacing between tags */
+        }
+
+        .bottom-nav {
+            position: sticky; /* Changed from fixed to sticky */
+            bottom: 0;
+            left: 0; /* Changed from 50% for full width */
+            width: 100%; /* Changed from 400px for full width */
+            background: var(--bg-card);
+            border-radius: 0 0 20px 20px; /* Adjusted for full width container */
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -10px 30px var(--shadow); /* Shadow for bottom nav */
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .nav-item:hover {
+            transform: scale(1.05);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: -30vh; /* Adjusted to be off-screen initially */
+            right: 0;
+            right: 10vw; /* Centered relative to max-width */
+            width: 56px;
+            height: 56px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(74, 222, 128, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(74, 222, 128, 0.4);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* Darker overlay */
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 24px;
+            width: 90%;
+            max-width: 450px; /* Slightly wider modal */
+            max-height: 90vh; /* Allow more height */
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease forwards; /* forwards to keep final state */
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 22px; /* Slightly larger title */
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            width: 36px; /* Larger close button */
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .close-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg); /* Add a subtle animation */
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600; /* Bolder label */
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+        }
+
+        .form-textarea {
+            height: 150px; /* Taller textarea */
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600; /* Bolder button text */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            display: inline-flex; /* For icon alignment */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 16px var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 28px; /* Larger stat numbers */
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .formatting-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            flex-wrap: wrap;
+            border: 1px solid var(--border);
+        }
+
+        .format-btn {
+            width: 36px; /* Larger format buttons */
+            height: 36px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .format-btn:hover, .format-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 8px; /* More space between colors */
+            margin-top: 8px;
+            margin-bottom: 16px;
+            padding: 4px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .color-option {
+            width: 24px; /* Larger color options */
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: var(--text-primary);
+        }
+        .color-option.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            animation: notificationSlide 0.4s ease forwards;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 200px;
+            text-align: center;
+        }
+        .notification.error { background: var(--danger); }
+        .notification.info { background: var(--accent); }
+        .notification.reminder { background: var(--warning); }
+
+
+        @keyframes notificationSlide {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .calendar-view {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-nav {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px; /* Larger nav arrows */
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav:hover {
+            background: var(--bg-secondary);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column; /* For reminder dots */
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            position: relative;
+            padding-top: 5px; /* Space for dots */
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-secondary);
+        }
+
+        .calendar-day.today {
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-reminder::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 5px;
+            height: 5px;
+            background: var(--warning);
+            border-radius: 50%;
+        }
+        .calendar-day.has-multiple-reminders::after {
+            background: var(--danger); /* Different color for multiple */
+        }
+
+
+        .widget-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .widget {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .widget-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .widget-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .link-preview {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid var(--primary-color); /* Thicker border */
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+        }
+
+        .link-preview-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .link-preview-url {
+            font-size: 13px;
+            color: var(--accent); /* Use accent color for links */
+            text-decoration: none;
+            word-break: break-all; /* Break long URLs */
+        }
+        .link-preview-url:hover {
+            text-decoration: underline;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px; /* Thicker progress bar */
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .slide-in {
+            animation: slideInUp 0.3s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Ripple effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0); /* Force hardware acceleration */
+        }
+
+        .ripple::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: .2;
+            transition: 0s;
+        }
+        
+        /* Message Box for alerts/confirms */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none; /* Allow clicks through when hidden */
+        }
+        .message-box-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .message-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .message-box-overlay.active .message-box {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .message-box h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        .message-box p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .message-box-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .message-box-buttons .btn {
+            min-width: 100px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            .app-container {
+                max-width: 100%;
+                min-height: 100vh;
+                border-radius: 0;
+            }
+            
+            .bottom-nav {
+                width: 100%;
+                border-radius: 0;
+            }
+            
+            .fab {
+                right: 20px;
+                bottom: 80px; /* Adjusted for smaller screens */
+            }
+
+            .modal-content {
+                width: 95%;
+                border-radius: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i> </button>
+    
+    <div class="app-container">
+        <div class="header">
+            <div class="search-container">
+                <span class="search-icon"><i class="fas fa-search"></i></span>
+                <input type="text" class="search-box" placeholder="Search notes..." id="searchInput">
+                <span class="filter-icon ripple" onclick="toggleFilter()">
+                    <i class="fas fa-filter"></i>
+                </span>
+            </div>
+            <div class="tabs">
+                <div class="tab active" data-tab="keypoints">KeyPoints</div>
+                <div class="tab" data-tab="progress">Progress</div>
+                <div class="tab" data-tab="calendar">Calendar</div>
+                <div class="tab" data-tab="widgets">Widgets</div>
+            </div>
+        </div>
+
+        <div class="content" id="mainContent">
+            <div id="keypoints-view">
+                <!-- Notes will be rendered here -->
+            </div>
+
+            <div id="progress-view" class="hidden">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalNotesStat">0</div>
+                        <div class="stat-label">Total Notes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTagsStat">0</div>
+                        <div class="stat-label">Total Tags</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgLengthStat">0</div>
+                        <div class="stat-label">Avg. Length</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="upcomingRemindersStat">0</div>
+                        <div class="stat-label">Reminders</div>
+                    </div>
+                </div>
+                
+                <div class="note-card">
+                    <div class="note-title">Weekly Progress</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="weeklyProgressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="note-content" id="weeklyProgressText">0% of weekly goals completed</div>
+                </div>
+
+                <div class="widget-container">
+                    <div class="widget" onclick="switchView('keypoints')">
+                        <div class="widget-title"><i class="fas fa-sticky-note"></i> Quick Notes</div>
+                        <div class="widget-content" id="quickNotesWidget"></div>
+                    </div>
+                    <div class="widget" onclick="switchView('calendar')">
+                        <div class="widget-title"><i class="fas fa-bell"></i> Reminders</div>
+                        <div class="widget-content" id="remindersWidgetContent"></div>
+                    </div>
+                    <div class="widget" onclick="openSettings()">
+                        <div class="widget-title"><i class="fas fa-chart-bar"></i> Analytics</div>
+                        <div class="widget-content">View detailed stats</div>
+                    </div>
+                    <div class="widget" onclick="openSettings()">
+                        <div class="widget-title"><i class="fas fa-palette"></i> Themes</div>
+                        <div class="widget-content">Customize appearance</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="calendar-view" class="hidden">
+                <div class="calendar-view">
+                    <div class="calendar-header">
+                        <button class="calendar-nav ripple" onclick="changeMonth(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 id="currentMonth">October 2024</h3>
+                        <button class="calendar-nav ripple" onclick="changeMonth(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar days will be rendered here -->
+                    </div>
+                </div>
+                
+                <div class="note-card">
+                    <div class="note-title"><i class="fas fa-calendar-check"></i> Upcoming Reminders</div>
+                    <div class="note-content" id="upcomingRemindersList">
+                        <p>No upcoming reminders.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="widgets-view" class="hidden">
+                <div class="widget-container" id="mainWidgetsContainer">
+                    <!-- Custom widgets will be rendered here -->
+                </div>
+                <button class="btn btn-primary" onclick="openWidgetCreationModal()" style="width: 100%;"><i class="fas fa-plus"></i> Create Custom Widget</button>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <div class="nav-item active ripple" data-view="keypoints" onclick="switchView('keypoints')">
+                    <i class="fas fa-sticky-note"></i>
+                </div>
+                <div class="nav-item ripple" data-view="progress" onclick="switchView('progress')">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="nav-item ripple" data-view="calendar" onclick="switchView('calendar')">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="nav-item ripple" data-view="widgets" onclick="switchView('widgets')">
+                    <i class="fas fa-th-large"></i>
+                </div>
+                <div class="nav-item ripple" onclick="openSettings()">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="fab ripple" onclick="openNoteModal()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="noteModalTitle">Create Note</h3>
+                <button class="close-btn ripple" onclick="closeModal('noteModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="formatting-toolbar">
+                <button class="format-btn ripple" onclick="formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                <button class="format-btn ripple" onclick="formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                <button class="format-btn ripple" onclick="formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+                <button class="format-btn ripple" onclick="formatText('strikethrough')" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                <button class="format-btn ripple" onclick="insertLink()" title="Link"><i class="fas fa-link"></i></button>
+                <button class="format-btn ripple" onclick="insertImage()" title="Image"><i class="fas fa-image"></i></button>
+                <button class="format-btn ripple" onclick="insertEmoji()" title="Emoji"><i class="fas fa-smile"></i></button>
+            </div>
+            
+            <div class="color-picker" id="colorPicker">
+                <div class="color-option active" style="background: var(--text-primary)" data-color="var(--text-primary)" onclick="changeTextColor(this)"></div>
+                <div class="color-option" style="background: #ef4444" data-color="#ef4444" onclick="changeTextColor(this)"></div>
+                <div class="color-option" style="background: #f59e0b" data-color="#f59e0b" onclick="changeTextColor(this)"></div>
+                <div class="color-option" style="background: #10b981" data-color="#10b981" onclick="changeTextColor(this)"></div>
+                <div class="color-option" style="background: #3b82f6" data-color="#3b82f6" onclick="changeTextColor(this)"></div>
+                <div class="color-option" style="background: #8b5cf6" data-color="#8b5cf6" onclick="changeTextColor(this)"></div>
+            </div>
+            
+            <form id="noteForm">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" id="noteTitle" placeholder="Enter note title...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea class="form-input form-textarea" id="noteContent" placeholder="Write your note here..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <input type="text" class="form-input" id="noteTags" placeholder="meeting, ideas, important...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Reminder Date</label>
+                    <input type="datetime-local" class="form-input" id="noteReminder">
+                </div>
+                
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary ripple" onclick="closeModal('noteModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary ripple">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Settings</h3>
+                <button class="close-btn ripple" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Language</label>
+                <select class="form-input" id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="zh">中文</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Theme</label>
+                <select class="form-input" id="themeSelect" onchange="applyTheme(this.value)">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="blue">Blue</option>
+                    <option value="purple">Purple</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Notifications</label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="pushNotifications" checked onchange="togglePushNotifications()">
+                    <span>Enable push notifications</span>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Data Management</label>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary ripple" onclick="exportData()"><i class="fas fa-upload"></i> Export Data</button>
+                    <button class="btn btn-secondary ripple" onclick="importData()"><i class="fas fa-download"></i> Import Data</button>
+                    <button class="btn btn-secondary ripple" onclick="backupData()"><i class="fas fa-cloud-upload-alt"></i> Backup</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Premium Features</label>
+                <button class="btn btn-primary ripple" onclick="showPremiumInfo()"><i class="fas fa-crown"></i> Upgrade to Premium</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">App Info</label>
+                <div style="font-size: 12px; color: var(--text-secondary);">
+                    <div>Version: 2.1.0</div>
+                    <div>Last Update: May 2025</div>
+                    <div>Storage Used: <span id="storageUsed">0 MB</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Share Options</h3>
+                <button class="close-btn ripple" onclick="closeModal('shareModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="widget-container">
+                <div class="widget ripple" onclick="shareAsImage()">
+                    <div class="widget-title"><i class="fas fa-camera"></i> Share as Image</div>
+                    <div class="widget-content">Generate visual snapshot</div>
+                </div>
+                <div class="widget ripple" onclick="shareAsText()">
+                    <div class="widget-title"><i class="fas fa-file-alt"></i> Share as Text</div>
+                    <div class="widget-content">Copy formatted text</div>
+                </div>
+                <div class="widget ripple" onclick="shareStats()">
+                    <div class="widget-title"><i class="fas fa-chart-pie"></i> Share Statistics</div>
+                    <div class="widget-content">Share progress data</div>
+                </div>
+                <div class="widget ripple" onclick="shareLink()">
+                    <div class="widget-title"><i class="fas fa-share-alt"></i> Share Link</div>
+                    <div class="widget-content">Generate shareable link</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="widgetCreationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Widget</h3>
+                <button class="close-btn ripple" onclick="closeModal('widgetCreationModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="widgetForm">
+                <div class="form-group">
+                    <label class="form-label">Widget Title</label>
+                    <input type="text" class="form-input" id="widgetTitleInput" placeholder="e.g., Important Notes">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Widget Type</label>
+                    <select class="form-input" id="widgetTypeSelect">
+                        <option value="notesCount">Notes Count</option>
+                        <option value="tagsCount">Tags Count</option>
+                        <option value="upcomingReminder">Next Reminder</option>
+                        <option value="customText">Custom Text</option>
+                    </select>
+                </div>
+                <div class="form-group hidden" id="customTextGroup">
+                    <label class="form-label">Custom Content</label>
+                    <textarea class="form-input form-textarea" id="customContentInput" placeholder="Enter custom text for the widget..."></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary ripple" onclick="closeModal('widgetCreationModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary ripple">Add Widget</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="message-box-overlay" id="messageBoxOverlay">
+        <div class="message-box">
+            <h4 id="messageBoxTitle"></h4>
+            <p id="messageBoxContent"></p>
+            <div class="message-box-buttons" id="messageBoxButtons">
+                <!-- Buttons will be added dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- App State ---
+        let notes = [];
+        let customWidgets = [];
+        let currentView = 'keypoints';
+        let currentTheme = 'light';
+        let currentLanguage = 'en';
+        let editingNoteId = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let pushNotificationsEnabled = true; // Default to enabled
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved data from localStorage
+            loadData();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Render the initial view
+            switchView(currentView);
+            
+            // Update the calendar
+            renderCalendar();
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Check for reminders
+            checkReminders();
+            
+            // Set theme toggle icon
+            updateThemeToggleIcon();
+        });
+
+        function setupEventListeners() {
+            // Note form submission
+            document.getElementById('noteForm').addEventListener('submit', saveNote);
+            
+            // Widget form submission
+            document.getElementById('widgetForm').addEventListener('submit', createWidget);
+            
+            // Widget type change
+            document.getElementById('widgetTypeSelect').addEventListener('change', toggleCustomTextInput);
+            
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', searchNotes);
+        }
+
+        function loadData() {
+            // Load notes from localStorage
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+                notes = JSON.parse(savedNotes);
+            }
+            
+            // Load widgets from localStorage
+            const savedWidgets = localStorage.getItem('customWidgets');
+            if (savedWidgets) {
+                customWidgets = JSON.parse(savedWidgets);
+            }
+            
+            // Load settings
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                currentTheme = savedTheme;
+                applyTheme(savedTheme);
+            }
+            
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+                changeLanguage(savedLanguage);
+            }
+            
+            const savedNotifications = localStorage.getItem('pushNotifications');
+            if (savedNotifications !== null) {
+                pushNotificationsEnabled = savedNotifications === 'true';
+                document.getElementById('pushNotifications').checked = pushNotificationsEnabled;
+            }
+            
+            // Update storage used
+            updateStorageUsed();
+        }
+
+        function saveData() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+            localStorage.setItem('customWidgets', JSON.stringify(customWidgets));
+            localStorage.setItem('theme', currentTheme);
+            localStorage.setItem('language', currentLanguage);
+            localStorage.setItem('pushNotifications', pushNotificationsEnabled);
+            
+            // Update storage used
+            updateStorageUsed();
+        }
+
+        function updateStorageUsed() {
+            const dataSize = (JSON.stringify(localStorage).length / 1024 / 1024); // in MB
+            document.getElementById('storageUsed').textContent = dataSize.toFixed(2) + ' MB';
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Hide all views
+            document.querySelectorAll('#mainContent > div').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Show the selected view
+            document.getElementById(`${view}-view`).classList.remove('hidden');
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === view) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.view === view) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Render content for the view
+            if (view === 'keypoints') {
+                renderNotes();
+            } else if (view === 'widgets') {
+                renderWidgets();
+            } else if (view === 'calendar') {
+                renderCalendar();
+                renderUpcomingReminders();
+            }
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('keypoints-view');
+            container.innerHTML = '';
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="note-card"><div class="note-content">No notes found. Create your first note!</div></div>';
+                return;
+            }
+            
+            notes.forEach(note => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'note-card';
+                noteCard.dataset.id = note.id;
+                noteCard.onclick = () => editNote(note.id);
+                
+                // Format tags
+                let tagsHtml = '';
+                if (note.tags && note.tags.length > 0) {
+                    tagsHtml = note.tags.map(tag => 
+                        `<span class="note-tag">${tag}</span>`
+                    ).join('');
+                }
+                
+                // Format date
+                const date = new Date(note.createdAt);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                // Format content with link previews
+                let contentHtml = note.content;
+                if (note.content.includes('http')) {
+                    // Simple link detection and formatting
+                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    contentHtml = contentHtml.replace(urlRegex, url => 
+                        `<a href="${url}" target="_blank" class="link-preview-url">${url}</a>`
+                    );
+                }
+                
+                noteCard.innerHTML = `
+                    <div class="note-title">${note.title}</div>
+                    <div class="note-content">${contentHtml}</div>
+                    <div class="note-meta">
+                        <div>${formattedDate}</div>
+                        <div>${tagsHtml}</div>
+                    </div>
+                `;
+                
+                container.appendChild(noteCard);
+            });
+        }
+
+        function openNoteModal(noteId = null) {
+            editingNoteId = noteId;
+            const modal = document.getElementById('noteModal');
+            const titleInput = document.getElementById('noteTitle');
+            const contentInput = document.getElementById('noteContent');
+            const tagsInput = document.getElementById('noteTags');
+            const reminderInput = document.getElementById('noteReminder');
+            const modalTitle = document.getElementById('noteModalTitle');
+            
+            if (noteId) {
+                // Edit existing note
+                const note = notes.find(n => n.id === noteId);
+                if (note) {
+                    titleInput.value = note.title;
+                    contentInput.value = note.content;
+                    tagsInput.value = note.tags ? note.tags.join(', ') : '';
+                    reminderInput.value = note.reminder || '';
+                    modalTitle.textContent = 'Edit Note';
+                }
+            } else {
+                // Create new note
+                titleInput.value = '';
+                contentInput.value = '';
+                tagsInput.value = '';
+                reminderInput.value = '';
+                modalTitle.textContent = 'Create Note';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveNote(e) {
+            e.preventDefault();
+            
+            const titleInput = document.getElementById('noteTitle');
+            const contentInput = document.getElementById('noteContent');
+            const tagsInput = document.getElementById('noteTags');
+            const reminderInput = document.getElementById('noteReminder');
+            
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            const tags = tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            const reminder = reminderInput.value;
+            
+            if (!title || !content) {
+                showNotification('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            const now = new Date().toISOString();
+            
+            if (editingNoteId) {
+                // Update existing note
+                const noteIndex = notes.findIndex(n => n.id === editingNoteId);
+                if (noteIndex !== -1) {
+                    notes[noteIndex] = {
+                        ...notes[noteIndex],
+                        title,
+                        content,
+                        tags,
+                        reminder,
+                        updatedAt: now
+                    };
+                }
+            } else {
+                // Create new note
+                const newNote = {
+                    id: Date.now().toString(),
+                    title,
+                    content,
+                    tags,
+                    reminder,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                notes.unshift(newNote);
+            }
+            
+            // Save and update UI
+            saveData();
+            renderNotes();
+            updateStatistics();
+            closeModal('noteModal');
+            
+            showNotification('Note saved successfully!');
+            
+            // Schedule notification if reminder is set
+            if (reminder) {
+                scheduleNotification(editingNoteId || notes[0].id, title, new Date(reminder));
+            }
+        }
+
+        function editNote(noteId) {
+            openNoteModal(noteId);
+        }
+
+        function deleteNote(noteId) {
+            notes = notes.filter(note => note.id !== noteId);
+            saveData();
+            renderNotes();
+            updateStatistics();
+            showNotification('Note deleted.');
+        }
+
+        function updateStatistics() {
+            // Total notes
+            document.getElementById('totalNotesStat').textContent = notes.length;
+            
+            // Total tags (unique)
+            const allTags = notes.flatMap(note => note.tags || []);
+            const uniqueTags = [...new Set(allTags)];
+            document.getElementById('totalTagsStat').textContent = uniqueTags.length;
+            
+            // Average note length
+            const totalLength = notes.reduce((sum, note) => sum + note.content.length, 0);
+            const avgLength = notes.length ? Math.round(totalLength / notes.length) : 0;
+            document.getElementById('avgLengthStat').textContent = avgLength;
+            
+            // Upcoming reminders
+            const now = new Date();
+            const upcomingReminders = notes.filter(note => 
+                note.reminder && new Date(note.reminder) > now
+            );
+            document.getElementById('upcomingRemindersStat').textContent = upcomingReminders.length;
+            
+            // Weekly progress (simulated)
+            const progress = Math.min(100, Math.floor(notes.length * 10));
+            document.getElementById('weeklyProgressFill').style.width = `${progress}%`;
+            document.getElementById('weeklyProgressText').textContent = `${progress}% of weekly goals completed`;
+            
+            // Quick notes widget
+            const quickNotes = notes.slice(0, 3).map(note => note.title);
+            document.getElementById('quickNotesWidget').textContent = quickNotes.length 
+                ? quickNotes.join(', ') 
+                : 'No recent notes';
+            
+            // Reminders widget
+            if (upcomingReminders.length > 0) {
+                const nextReminder = upcomingReminders[0];
+                const reminderDate = new Date(nextReminder.reminder);
+                const formattedDate = reminderDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+                document.getElementById('remindersWidgetContent').textContent = 
+                    `${nextReminder.title} (${formattedDate})`;
+            } else {
+                document.getElementById('remindersWidgetContent').textContent = 'No upcoming reminders';
+            }
+        }
+
+        function toggleTheme() {
+            const themes = ['light', 'dark', 'blue', 'purple'];
+            const currentIndex = themes.indexOf(currentTheme);
+            const nextIndex = (currentIndex + 1) % themes.length;
+            applyTheme(themes[nextIndex]);
+        }
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.className = `theme-${theme}`;
+            localStorage.setItem('theme', theme);
+            updateThemeToggleIcon();
+        }
+
+        function updateThemeToggleIcon() {
+            const icon = document.querySelector('.theme-toggle i');
+            if (currentTheme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            // In a real app, we would update all text elements with translations
+            showNotification(`Language changed to ${lang === 'en' ? 'English' : lang === 'es' ? 'Spanish' : lang}`, 'info');
+        }
+
+        function togglePushNotifications() {
+            pushNotificationsEnabled = document.getElementById('pushNotifications').checked;
+            localStorage.setItem('pushNotifications', pushNotificationsEnabled);
+            
+            if (pushNotificationsEnabled) {
+                // Request notification permission
+                if (Notification.permission !== 'granted') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            showNotification('Notifications enabled!');
+                        }
+                    });
+                }
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('themeSelect').value = currentTheme;
+            document.getElementById('languageSelect').value = currentLanguage;
+            document.getElementById('pushNotifications').checked = pushNotificationsEnabled;
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function exportData() {
+            const data = {
+                notes: notes,
+                widgets: customWidgets,
+                settings: {
+                    theme: currentTheme,
+                    language: currentLanguage,
+                    pushNotifications: pushNotificationsEnabled
+                }
+            };
+            
+            const dataStr = JSON.stringify(data);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'notesapp-export.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Data exported successfully!');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // Import notes
+                        if (data.notes) {
+                            notes = data.notes;
+                        }
+                        
+                        // Import widgets
+                        if (data.widgets) {
+                            customWidgets = data.widgets;
+                        }
+                        
+                        // Import settings
+                        if (data.settings) {
+                            if (data.settings.theme) {
+                                applyTheme(data.settings.theme);
+                            }
+                            if (data.settings.language) {
+                                changeLanguage(data.settings.language);
+                            }
+                            if (data.settings.pushNotifications !== undefined) {
+                                pushNotificationsEnabled = data.settings.pushNotifications;
+                                document.getElementById('pushNotifications').checked = pushNotificationsEnabled;
+                            }
+                        }
+                        
+                        // Save and update UI
+                        saveData();
+                        renderNotes();
+                        renderWidgets();
+                        updateStatistics();
+                        
+                        showNotification('Data imported successfully!');
+                    } catch (error) {
+                        showNotification('Invalid file format.', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function backupData() {
+            // In a real app, this would sync to cloud storage
+            showNotification('Backup created successfully!');
+        }
+
+        function showPremiumInfo() {
+            showMessageBox(
+                'Premium Features',
+                'Unlock advanced features like cloud sync, unlimited custom themes, and priority support with Premium!',
+                ['Got it!']
+            );
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendarGrid');
+            const monthHeader = document.getElementById('currentMonth');
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            
+            // Set month header
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            monthHeader.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Add day headers
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                container.appendChild(dayElement);
+            });
+            
+            // Add empty cells for days before the first day
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day';
+                container.appendChild(emptyCell);
+            }
+            
+            // Add cells for each day
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                // Check if today
+                if (currentYear === today.getFullYear() && 
+                    currentMonth === today.getMonth() && 
+                    day === today.getDate()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Check if has notes/reminders
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasReminders = notes.some(note => 
+                    note.reminder && note.reminder.startsWith(dateStr)
+                );
+                
+                if (hasReminders) {
+                    dayElement.classList.add('has-reminder');
+                }
+                
+                dayElement.onclick = () => showNotesForDate(dateStr);
+                container.appendChild(dayElement);
+            }
+        }
+
+        function changeMonth(offset) {
+            currentMonth += offset;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function renderUpcomingReminders() {
+            const container = document.getElementById('upcomingRemindersList');
+            container.innerHTML = '';
+            
+            const now = new Date();
+            const upcomingReminders = notes
+                .filter(note => note.reminder && new Date(note.reminder) > now)
+                .sort((a, b) => new Date(a.reminder) - new Date(b.reminder))
+                .slice(0, 5); // Show top 5
+            
+            if (upcomingReminders.length === 0) {
+                container.innerHTML = '<p>No upcoming reminders.</p>';
+                return;
+            }
+            
+            upcomingReminders.forEach(note => {
+                const reminderDate = new Date(note.reminder);
+                const formattedDate = reminderDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const reminderElement = document.createElement('div');
+                reminderElement.className = 'note-content';
+                reminderElement.innerHTML = `
+                    <div><strong>${note.title}</strong></div>
+                    <div>${formattedDate}</div>
+                `;
+                
+                container.appendChild(reminderElement);
+            });
+        }
+
+        function checkReminders() {
+            if (!pushNotificationsEnabled) return;
+            
+            const now = new Date();
+            notes.forEach(note => {
+                if (note.reminder) {
+                    const reminderTime = new Date(note.reminder);
+                    const timeDiff = reminderTime - now;
+                    
+                    // If reminder is within the next minute
+                    if (timeDiff > 0 && timeDiff < 60000) {
+                        showNotification(`Reminder: ${note.title}`, 'reminder');
+                    }
+                }
+            });
+            
+            // Check every minute
+            setTimeout(checkReminders, 60000);
+        }
+
+        function scheduleNotification(noteId, title, reminderTime) {
+            if (!pushNotificationsEnabled) return;
+            
+            const timeDiff = reminderTime - new Date();
+            if (timeDiff > 0) {
+                setTimeout(() => {
+                    if (Notification.permission === 'granted') {
+                        new Notification('NotesApp Reminder', {
+                            body: title,
+                            icon: 'https://cdn-icons-png.flaticon.com/512/3209/3209260.png'
+                        });
+                    }
+                }, timeDiff);
+            }
+        }
+
+        function showNotesForDate(dateStr) {
+            const notesForDate = notes.filter(note => 
+                note.reminder && note.reminder.startsWith(dateStr)
+            );
+            
+            if (notesForDate.length === 0) {
+                showMessageBox(`Notes for ${dateStr}`, 'No notes for this date.', ['OK']);
+                return;
+            }
+            
+            let message = `<p>Notes for ${dateStr}:</p><ul>`;
+            notesForDate.forEach(note => {
+                message += `<li><strong>${note.title}</strong>: ${note.content.substring(0, 50)}...</li>`;
+            });
+            message += '</ul>';
+            
+            showMessageBox(`Notes for ${dateStr}`, message, ['OK']);
+        }
+
+        function createWidget(e) {
+            e.preventDefault();
+            
+            const titleInput = document.getElementById('widgetTitleInput');
+            const typeSelect = document.getElementById('widgetTypeSelect');
+            const customContentInput = document.getElementById('customContentInput');
+            
+            const title = titleInput.value.trim();
+            const type = typeSelect.value;
+            const content = customContentInput.value.trim();
+            
+            if (!title) {
+                showNotification('Please enter a widget title.', 'error');
+                return;
+            }
+            
+            if (type === 'customText' && !content) {
+                showNotification('Please enter custom content.', 'error');
+                return;
+            }
+            
+            const newWidget = {
+                id: Date.now().toString(),
+                title,
+                type,
+                content: type === 'customText' ? content : undefined
+            };
+            
+            customWidgets.push(newWidget);
+            saveData();
+            renderWidgets();
+            closeModal('widgetCreationModal');
+            
+            showNotification('Widget added successfully!');
+        }
+
+        function toggleCustomTextInput() {
+            const typeSelect = document.getElementById('widgetTypeSelect');
+            const customTextGroup = document.getElementById('customTextGroup');
+            
+            if (typeSelect.value === 'customText') {
+                customTextGroup.classList.remove('hidden');
+            } else {
+                customTextGroup.classList.add('hidden');
+            }
+        }
+
+        function openWidgetCreationModal() {
+            document.getElementById('widgetTitleInput').value = '';
+            document.getElementById('widgetTypeSelect').value = 'notesCount';
+            document.getElementById('customContentInput').value = '';
+            document.getElementById('customTextGroup').classList.add('hidden');
+            document.getElementById('widgetCreationModal').classList.add('active');
+        }
+
+        function renderWidgets() {
+            const container = document.getElementById('mainWidgetsContainer');
+            container.innerHTML = '';
+            
+            if (customWidgets.length === 0) {
+                container.innerHTML = '<div class="note-card"><div class="note-content">No widgets yet. Create one!</div></div>';
+                return;
+            }
+            
+            customWidgets.forEach(widget => {
+                const widgetElement = document.createElement('div');
+                widgetElement.className = 'widget';
+                widgetElement.dataset.id = widget.id;
+                
+                let content = '';
+                switch (widget.type) {
+                    case 'notesCount':
+                        content = `Total Notes: ${notes.length}`;
+                        break;
+                    case 'tagsCount':
+                        const allTags = notes.flatMap(note => note.tags || []);
+                        const uniqueTags = [...new Set(allTags)];
+                        content = `Unique Tags: ${uniqueTags.length}`;
+                        break;
+                    case 'upcomingReminder':
+                        const upcoming = notes.filter(n => n.reminder && new Date(n.reminder) > new Date());
+                        content = upcoming.length 
+                            ? `Next: ${upcoming[0].title}` 
+                            : 'No upcoming reminders';
+                        break;
+                    case 'customText':
+                        content = widget.content;
+                        break;
+                }
+                
+                widgetElement.innerHTML = `
+                    <div class="widget-title">
+                        <i class="fas fa-th-large"></i> ${widget.title}
+                    </div>
+                    <div class="widget-content">${content}</div>
+                `;
+                
+                // Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'format-btn';
+                deleteBtn.style.position = 'absolute';
+                deleteBtn.style.top = '10px';
+                deleteBtn.style.right = '10px';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteWidget(widget.id);
+                };
+                
+                widgetElement.appendChild(deleteBtn);
+                container.appendChild(widgetElement);
+            });
+        }
+
+        function deleteWidget(widgetId) {
+            showMessageBox(
+                'Delete Widget',
+                'Are you sure you want to delete this widget?',
+                ['Cancel', 'Delete'],
+                () => {
+                    customWidgets = customWidgets.filter(w => w.id !== widgetId);
+                    saveData();
+                    renderWidgets();
+                    showNotification('Widget deleted.');
+                }
+            );
+        }
+
+        function formatText(format) {
+            const contentInput = document.getElementById('noteContent');
+            const start = contentInput.selectionStart;
+            const end = contentInput.selectionEnd;
+            const selectedText = contentInput.value.substring(start, end);
+            
+            if (!selectedText) return;
+            
+            let formattedText = '';
+            switch (format) {
+                case 'bold':
+                    formattedText = `<strong>${selectedText}</strong>`;
+                    break;
+                case 'italic':
+                    formattedText = `<em>${selectedText}</em>`;
+                    break;
+                case 'underline':
+                    formattedText = `<u>${selectedText}</u>`;
+                    break;
+                case 'strikethrough':
+                    formattedText = `<s>${selectedText}</s>`;
+                    break;
+            }
+            
+            const newContent = 
+                contentInput.value.substring(0, start) + 
+                formattedText + 
+                contentInput.value.substring(end);
+            
+            contentInput.value = newContent;
+        }
+
+        function insertLink() {
+            const url = prompt('Enter URL:');
+            if (url) {
+                const text = prompt('Enter link text (optional):') || url;
+                const contentInput = document.getElementById('noteContent');
+                const start = contentInput.selectionStart;
+                
+                const link = `<a href="${url}" target="_blank">${text}</a>`;
+                
+                contentInput.value = 
+                    contentInput.value.substring(0, start) + 
+                    link + 
+                    contentInput.value.substring(start);
+            }
+        }
+
+        function insertImage() {
+            const url = prompt('Enter image URL:');
+            if (url) {
+                const contentInput = document.getElementById('noteContent');
+                const start = contentInput.selectionStart;
+                
+                const img = `<img src="${url}" alt="Image">`;
+                
+                contentInput.value = 
+                    contentInput.value.substring(0, start) + 
+                    img + 
+                    contentInput.value.substring(start);
+            }
+        }
+
+        function insertEmoji() {
+            const emojis = ['😀', '😊', '😂', '❤️', '👍', '👏', '🎉', '🔥', '💡', '📝'];
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.flexWrap = 'wrap';
+            container.style.gap = '5px';
+            container.style.padding = '10px';
+            
+            emojis.forEach(emoji => {
+                const button = document.createElement('button');
+                button.textContent = emoji;
+                button.style.fontSize = '24px';
+                button.style.background = 'none';
+                button.style.border = 'none';
+                button.style.cursor = 'pointer';
+                button.onclick = () => {
+                    document.getElementById('noteContent').value += emoji;
+                    container.remove();
+                };
+                container.appendChild(button);
+            });
+            
+            const contentInput = document.getElementById('noteContent');
+            contentInput.parentNode.insertBefore(container, contentInput.nextSibling);
+        }
+
+        function changeTextColor(element) {
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            const color = element.dataset.color;
+            const contentInput = document.getElementById('noteContent');
+            const start = contentInput.selectionStart;
+            const end = contentInput.selectionEnd;
+            const selectedText = contentInput.value.substring(start, end);
+            
+            if (!selectedText) return;
+            
+            const coloredText = `<span style="color: ${color}">${selectedText}</span>`;
+            
+            const newContent = 
+                contentInput.value.substring(0, start) + 
+                coloredText + 
+                contentInput.value.substring(end);
+            
+            contentInput.value = newContent;
+        }
+
+        function shareAsImage() {
+            const selectedNote = getSelectedNote();
+            if (!selectedNote) return;
+            
+            const noteCard = document.querySelector(`.note-card[data-id="${selectedNote.id}"]`);
+            
+            domtoimage.toBlob(noteCard)
+                .then(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `note-${selectedNote.id}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    showNotification('Image generated and downloaded!');
+                })
+                .catch(function(error) {
+                    showNotification('Error generating image: ' + error, 'error');
+                });
+        }
+
+        function shareAsText() {
+            const selectedNote = getSelectedNote();
+            if (!selectedNote) return;
+            
+            navigator.clipboard.writeText(`${selectedNote.title}\n\n${selectedNote.content}`)
+                .then(() => {
+                    showNotification('Text copied to clipboard!');
+                })
+                .catch(err => {
+                    showNotification('Failed to copy text: ' + err, 'error');
+                });
+        }
+
+        function shareStats() {
+            const stats = `NotesApp Statistics:
+Total Notes: ${notes.length}
+Total Tags: ${[...new Set(notes.flatMap(n => n.tags || []))].length}
+Upcoming Reminders: ${notes.filter(n => n.reminder && new Date(n.reminder) > new Date()).length}`;
+            
+            navigator.clipboard.writeText(stats)
+                .then(() => {
+                    showNotification('Statistics copied to clipboard!');
+                })
+                .catch(err => {
+                    showNotification('Failed to copy statistics: ' + err, 'error');
+                });
+        }
+
+        function shareLink() {
+            const selectedNote = getSelectedNote();
+            if (!selectedNote) return;
+            
+            // In a real app, this would generate a shareable link
+            navigator.clipboard.writeText(`https://notesapp.com/share/${selectedNote.id}`)
+                .then(() => {
+                    showNotification('Shareable link copied to clipboard!');
+                })
+                .catch(err => {
+                    showNotification('Failed to copy link: ' + err, 'error');
+                });
+        }
+
+        function getSelectedNote() {
+            const selected = document.querySelector('.note-card.selected');
+            if (!selected) {
+                showNotification('Please select a note first.', 'error');
+                return null;
+            }
+            return notes.find(n => n.id === selected.dataset.id);
+        }
+
+        function searchNotes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderNotes();
+                return;
+            }
+            
+            const filteredNotes = notes.filter(note => 
+                note.title.toLowerCase().includes(searchTerm) || 
+                note.content.toLowerCase().includes(searchTerm) || 
+                (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+            );
+            
+            const container = document.getElementById('keypoints-view');
+            container.innerHTML = '';
+            
+            if (filteredNotes.length === 0) {
+                container.innerHTML = '<div class="note-card"><div class="note-content">No matching notes found.</div></div>';
+                return;
+            }
+            
+            filteredNotes.forEach(note => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'note-card';
+                noteCard.dataset.id = note.id;
+                noteCard.onclick = () => editNote(note.id);
+                
+                // Highlight search term in content
+                let content = note.content;
+                if (searchTerm) {
+                    const regex = new RegExp(searchTerm, 'gi');
+                    content = content.replace(regex, match => `<mark>${match}</mark>`);
+                }
+                
+                // Format tags
+                let tagsHtml = '';
+                if (note.tags && note.tags.length > 0) {
+                    tagsHtml = note.tags.map(tag => 
+                        `<span class="note-tag">${tag}</span>`
+                    ).join('');
+                }
+                
+                // Format date
+                const date = new Date(note.createdAt);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                noteCard.innerHTML = `
+                    <div class="note-title">${note.title}</div>
+                    <div class="note-content">${content}</div>
+                    <div class="note-meta">
+                        <div>${formattedDate}</div>
+                        <div>${tagsHtml}</div>
+                    </div>
+                `;
+                
+                container.appendChild(noteCard);
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        function showMessageBox(title, content, buttons, confirmCallback = null) {
+            const overlay = document.getElementById('messageBoxOverlay');
+            const titleEl = document.getElementById('messageBoxTitle');
+            const contentEl = document.getElementById('messageBoxContent');
+            const buttonsContainer = document.getElementById('messageBoxButtons');
+            
+            titleEl.textContent = title;
+            contentEl.innerHTML = content;
+            buttonsContainer.innerHTML = '';
+            
+            buttons.forEach((buttonText, index) => {
+                const button = document.createElement('button');
+                button.className = index === buttons.length - 1 ? 'btn btn-primary' : 'btn btn-secondary';
+                button.textContent = buttonText;
+                button.onclick = () => {
+                    if (index === buttons.length - 1 && confirmCallback) {
+                        confirmCallback();
+                    }
+                    overlay.classList.remove('active');
+                };
+                buttonsContainer.appendChild(button);
+            });
+            
+            overlay.classList.add('active');
+        }
+
+        // Initialize with some sample data
+        function initSampleData() {
+            if (notes.length === 0) {
+                notes = [
+                    {
+                        id: '1',
+                        title: 'Meeting Notes',
+                        content: 'Discussed project timelines and deliverables. Need to finalize by Friday.',
+                        tags: ['meeting', 'project'],
+                        createdAt: '2025-05-20T10:30:00Z',
+                        updatedAt: '2025-05-20T10:30:00Z'
+                    },
+                    {
+                        id: '2',
+                        title: 'Research Findings',
+                        content: 'Found interesting article: https://example.com/research-article',
+                        tags: ['research', 'important'],
+                        createdAt: '2025-05-22T14:45:00Z',
+                        updatedAt: '2025-05-22T14:45:00Z'
+                    },
+                    {
+                        id: '3',
+                        title: 'Shopping List',
+                        content: '- Milk\n- Eggs\n- Bread\n- Fruits',
+                        tags: ['personal'],
+                        createdAt: '2025-05-25T09:15:00Z',
+                        updatedAt: '2025-05-25T09:15:00Z',
+                        reminder: '2025-05-28T18:00:00'
+                    }
+                ];
+                saveData();
+            }
+        }
+
+        // Initialize sample data
+        initSampleData();
+    </script>
+</body>
+</html>
