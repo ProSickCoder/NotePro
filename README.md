@@ -63,17 +63,18 @@ Take notes, track tasks, stay organized, and never miss a beat.
 
 ## 📸 Screenshots
 
-### 🟢 Light Mode – KeyPoints
-![Light Mode - KeyPoints](b59fee6e-d468-4e9a-af88-5a3e77086f72.png)
+### ⚫ Dark Mode – KeyPoints
+![Dark Mode - Progress]([ffb0e767-2906-4fd8-ac9b-66da1c79e42c.png](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174746.png))
 
-### ⚫ Dark Mode – Progress
-![Dark Mode - Progress](ffb0e767-2906-4fd8-ac9b-66da1c79e42c.png)
+### 🟢 Light Mode – Calander
+![Light Mode - KeyPoints]([b59fee6e-d468-4e9a-af88-5a3e77086f72.png](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174837.png))
 
-### 🔵 Blue Theme – Calendar
-![Blue Theme - Calendar](82c7b1ff-f155-465e-826d-8cf7018e780c.png)
+
+### 🔵 Blue Theme – Progress
+![Blue Theme - Calendar]([82c7b1ff-f155-465e-826d-8cf7018e780c.png](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174746.png))
 
 ### 🟣 Purple Theme – Widgets
-![Purple Theme - Widgets](82ad8ca6-1d3e-4afa-8de1-03ff4bc8f067.png)
+![Purple Theme - Widgets]([NotePro/Screenshot 2025-05-28 174646.png](https://github.com/ProSickCoder/NotePro/blob/2933e438380bc3f066c17f5e8e0cb545faf1ff71/Screenshot%202025-05-28%20174646.png))
 
 ---
 
